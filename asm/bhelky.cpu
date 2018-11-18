@@ -1,0 +1,17 @@
+#cpudef
+{
+    #bits 8
+
+    nop              ->  0x00
+    lda {value}      -> (0x01 << 4 | value)[7:0]
+    add {value}      -> (0x02 << 4 | value)[7:0]
+    sub {value}      -> (0x03 << 4 | value)[7:0]
+    sta {value}      -> (0x04 << 4 | value)[7:0]
+    ldi {value}      -> (0x05 << 4 | value)[7:0]
+    jmp {value}      -> (0x06 << 4 | value)[7:0]
+    jc  {value}      -> (0x07 << 4 | value)[7:0]
+    jz  {value}      -> (0x08 << 4 | value)[7:0]
+    jnc  {value}     -> (0x09 << 4 | value)[7:0]
+    out              -> (0x0E << 4)[7:0]
+    hlt              -> (0x0F << 4)[7:0]
+}

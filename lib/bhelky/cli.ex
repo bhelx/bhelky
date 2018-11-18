@@ -23,25 +23,26 @@ defmodule Bhelky.CLI do
   defp parse_args(["emulate" | args]) do
     {opts, _, _} =
       args
-      |> OptionParser.parse(switches: [input: :string, slowdown: :integer])
+      |> OptionParser.parse(switches: [
+        input: :string,
+        slowdown: :integer,
+        history: :string
+      ])
 
     case opts do
-      [input: input, slowdown: slowdown] ->
-          input
-          |> Bhelky.BinaryParser.parse
-          |> Bhelky.Machine.new
-          |> Bhelky.Machine.run(slowdown)
-          |> List.last
-          |> inspect
+      [input: input, slowdown: slowdown, history: hfile] ->
+        input
+        |> Bhelky.BinaryParser.parse
+        |> Bhelky.Machine.new
+        |> Bhelky.Machine.run(slowdown)
+        |> Bhelky.Machine.store_execution_history(hfile)
+        |> List.last
+        |> inspect
       _ ->
         "Options not valid #{inspect opts}"
     end
   end
   defp parse_args(args) do
     raise ArgumentError, message: "Unknown command #{inspect args}"
-  end
-
-  defp response({opts, word}) do
-    if opts[:upcase], do: String.upcase(word), else: word
   end
 end

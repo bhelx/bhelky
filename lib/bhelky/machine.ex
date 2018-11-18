@@ -21,7 +21,7 @@ defmodule Bhelky.Machine do
     end
     :timer.sleep(slowdown)
     instr = Enum.at(machine.memory, machine.pc)
-    #IO.puts("[#{machine.pc}] #{inspect instr}")
+    #IO.puts("[#{machine.pc}] #{inspect instr} #{machine.reg_a} #{inspect machine.memory}")
     case exec(machine, instr) do
       nil -> history ++ [{instr, machine}]
       m -> run(m, slowdown, history ++ [{instr, m}])
@@ -145,6 +145,20 @@ defmodule Bhelky.Machine do
 
   def exec(machine, instr) do
     raise ArgumentError, message: "Unknown instruction: #{inspect instr}. Machine: #{inspect machine}"
+  end
+
+  def store_execution_history(history, path) do
+    {:ok, file} = File.open(path, [:write])
+    IO.binwrite file, :erlang.term_to_binary(history)
+    File.close(file)
+    history
+  end
+
+  def load_execution_history(path) do
+    {:ok, file} = File.open(path)
+    history = :erlang.binary_to_term(IO.binread(file, :all))
+    File.close(file)
+    history
   end
 
   defp right_pad(program) when length(program) < 16 do

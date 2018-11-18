@@ -107,10 +107,13 @@ with different instructions as well as develop and test my programs before I run
 hardware.
 
 To run a binary on the emulator, use the `emulate` command.
-Slowdown is millisecond wait time b/w instructions:
+
+* `input` is the input binary program to run.
+* `slowdown` is millisecond wait time b/w instructions. Set to `0` to go full speed.
+* `history` is where to store the execution history of the run (for later inspection).
 
 ```bash
-$ ./bhelky emulate --input /tmp/fibonacci.bin --slowdown 10
+$ ./bhelky emulate --input /tmp/fibonacci.bin --slowdown 10 --history /tmp/fibonacci.hist
 Out [1]
 Out [2]
 Out [3]
@@ -128,4 +131,59 @@ Out [377]
 ```
 
 The program will display anything called with `out` and when it terminates it will dump the state of the machine and the last command.
+
+If you want to inspect the execution history, you can do so in iex:
+
+``` bash
+$ iex -S mix
+```
+
+```elixir
+iex(1)> history = Bhelky.Machine.load_execution_history("/tmp/fibonacci.hist")
+iex(2)> # The schema of the history data is [{opcode, arg}, %Bhelky.Machine{}]
+iex(3)> # It can be useful to query this structure using elixir to debug problems
+iex(4)> # For instance let's look at how each operation altered the a register
+iex(5)> change_desc = fn (s1, s2) ->
+...(5)>   cond do
+...(5)>     s1 != s2 -> "changed register A from #{s1} to #{s2}"
+...(5)>     true -> ""
+...(5)>   end
+...(5)> end
+iex(6)> history |> Enum.chunk_every(2, 1, :discard) |> Enum.each(fn [{_c1, s1}, {c2, s2}] ->
+...(6)>   IO.puts("#{inspect c2} #{change_desc.(s1.reg_a, s2.reg_a)}")
+...(6)> end)
+{:lda, 15}
+{:add, 14} changed register A from 0 to 1
+{:sta, 13}
+{:lda, 14}
+{:sta, 15}
+{:lda, 13}
+{:sta, 14}
+{:out}
+{:jnc, 0}
+{:lda, 15}
+{:add, 14} changed register A from 1 to 2
+{:sta, 13}
+{:lda, 14} changed register A from 2 to 1
+{:sta, 15}
+{:lda, 13} changed register A from 1 to 2
+{:sta, 14}
+{:out}
+{:jnc, 0}
+{:lda, 15} changed register A from 2 to 1
+{:add, 14} changed register A from 1 to 3
+{:sta, 13}
+{:lda, 14} changed register A from 3 to 2
+{:sta, 15}
+{:lda, 13} changed register A from 2 to 3
+{:sta, 14}
+{:out}
+# .......
+# .......
+# .......
+{:jnc, 0}
+{:hlt}
+:ok
+```
+
 

@@ -76,7 +76,7 @@ defmodule Bhelky.Machine do
     load(machine, :reg_a, val) |> incr
   end
 
-  # STA X - store the contents of register a into address X
+  # STA X - store the contents of register A into address X
   def exec(machine, {:sta, addr}) do
     store(machine, addr, machine.reg_a) |> incr
   end
@@ -106,8 +106,8 @@ defmodule Bhelky.Machine do
     end
   end
 
-  # JC C - jump to program location C if carry bit is not set
-  #        else just move on in the program
+  # JNC C - jump to program location C if carry bit is NOT set
+  #         else just move on in the program
   def exec(machine, {:jnc, pc}) do
     unless machine.carry_bit do
       %{machine | pc: pc}

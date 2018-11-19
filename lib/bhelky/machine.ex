@@ -1,12 +1,10 @@
 defmodule Bhelky.Machine do
-  defstruct [
-    carry_bit: false,
-    reg_a: 0,
-    reg_b: 0,
-    reg_o: 0,
-    pc: 0,
-    memory: [],
-  ]
+  defstruct carry_bit: false,
+            reg_a: 0,
+            reg_b: 0,
+            reg_o: 0,
+            pc: 0,
+            memory: []
 
   def new(program) do
     %Bhelky.Machine{
@@ -15,13 +13,15 @@ defmodule Bhelky.Machine do
   end
 
   def run(machine, slowdown \\ 0, history \\ []) do
-    history = cond do
-      length(history) == 0 -> [{nil, machine}]
-      true -> history
-    end
+    history =
+      cond do
+        length(history) == 0 -> [{nil, machine}]
+        true -> history
+      end
+
     :timer.sleep(slowdown)
     instr = Enum.at(machine.memory, machine.pc)
-    #IO.puts("[#{machine.pc}] #{inspect instr} #{machine.reg_a} #{inspect machine.memory}")
+    # IO.puts("[#{machine.pc}] #{inspect instr} #{machine.reg_a} #{inspect machine.memory}")
     case exec(machine, instr) do
       nil -> history ++ [{instr, machine}]
       m -> run(m, slowdown, history ++ [{instr, m}])
@@ -120,6 +120,7 @@ defmodule Bhelky.Machine do
   #         then sum and put result into register A
   def exec(machine, {:add, addr}) do
     v = fetch(machine, addr)
+
     machine
     |> load(:reg_b, v)
     |> load(:reg_a, machine.reg_a + v)
@@ -131,6 +132,7 @@ defmodule Bhelky.Machine do
   #         then subtract and put result into register A
   def exec(machine, {:sub, addr}) do
     v = fetch(machine, addr)
+
     machine
     |> load(:reg_b, v)
     |> load(:reg_a, machine.reg_a - v)
@@ -139,17 +141,19 @@ defmodule Bhelky.Machine do
 
   # Breakpoint
   def exec(machine, {:break, instr}) do
-    require IEx; IEx.pry
+    require IEx
+    IEx.pry()
     exec(machine, instr)
   end
 
   def exec(machine, instr) do
-    raise ArgumentError, message: "Unknown instruction: #{inspect instr}. Machine: #{inspect machine}"
+    raise ArgumentError,
+      message: "Unknown instruction: #{inspect(instr)}. Machine: #{inspect(machine)}"
   end
 
   def store_execution_history(history, path) do
     {:ok, file} = File.open(path, [:write])
-    IO.binwrite file, :erlang.term_to_binary(history)
+    IO.binwrite(file, :erlang.term_to_binary(history))
     File.close(file)
     history
   end
@@ -164,6 +168,7 @@ defmodule Bhelky.Machine do
   defp right_pad(program) when length(program) < 16 do
     right_pad(program ++ [0])
   end
+
   defp right_pad(program) do
     program
   end

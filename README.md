@@ -1,9 +1,10 @@
 # Bhelky
 
-This codebase contains tools for my hand-built TTL computer (Bhelky JR). It currently has 2 pieces:
+This codebase contains tools for my hand-built TTL computer (Bhelky JR). It currently has 3 pieces:
 
 1. [Assembler](#Assembler)
 2. [Emulator](#Emulator)
+3. [Display Binary](#Display)
 
 ## Dependencies
 
@@ -186,4 +187,27 @@ iex(6)> history |> Enum.chunk_every(2, 1, :discard) |> Enum.each(fn [{_c1, s1}, 
 :ok
 ```
 
+## Display
 
+The display command shows a binary in a form that makes it easy
+to enter by hand into RAM. The format is `address{4} => opcode{4} | arg{4}`.
+
+```bash
+$ ./bhelky display --input /tmp/fibonacci.bin
+0000 => 0001 | 1111
+0001 => 0010 | 1110
+0010 => 0100 | 1101
+0011 => 0001 | 1110
+0100 => 0100 | 1111
+0101 => 0001 | 1101
+0110 => 0100 | 1110
+0111 => 1110 | 0000
+1000 => 1001 | 0000
+1001 => 1111 | 0000
+1010 => 0000 | 0000
+1011 => 0000 | 0000
+1100 => 0000 | 0000
+1101 => 0000 | 0000
+1110 => 0000 | 0001
+1111 => 0000 | 0000
+```

@@ -51,7 +51,32 @@ defmodule Bhelky.CLI do
     end
   end
 
+  defp parse_args(["display" | args]) do
+    {opts, _, _} =
+      args
+      |> OptionParser.parse(switches: [input: :string])
+
+    case opts do
+      [input: input] ->
+        input
+        |> File.stream!([], 1)
+        |> Stream.with_index()
+        |> Enum.map(fn {v, idx} ->
+          <<opcode::size(4), arg::size(4)>> = v
+          "#{to_4_bit(idx)} => #{to_4_bit(opcode)} | #{to_4_bit(arg)}\n"
+        end)
+      _ ->
+        "Options not valid #{inspect(opts)}"
+    end
+  end
+
   defp parse_args(args) do
     raise ArgumentError, message: "Unknown command #{inspect(args)}"
+  end
+
+  defp to_4_bit(n) do
+    n
+    |> Integer.to_string(2)
+    |> String.pad_leading(4, "0")
   end
 end
